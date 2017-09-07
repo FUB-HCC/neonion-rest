@@ -9,6 +9,8 @@ import logging
 import cherrypy
 import threading
 from collections import OrderedDict
+import json
+import urllib.parse
 
 VERSION = "0.1.0"
 
@@ -79,6 +81,14 @@ class Targets:
     """Target handler.
     """
 
+    def __init__(self):
+        """Initialise.
+        """
+
+        self.targets = OrderedDict()
+
+        return
+
     @cherrypy.expose
     @cherrypy.tools.json_out()
     @cherrypy.tools.json_in()
@@ -86,20 +96,39 @@ class Targets:
         """Handle given target.
         """
 
-        targets = OrderedDict()
+        if cherrypy.request.method == 'GET':
 
-        targets['target:1'] = {"id": "target:1"}
-        targets['target:2'] = {"id": "target:2"}
+            if target_iri is None:
 
-        if target_iri is None:
+                return list(self.targets.values())
 
-            return list(targets.values())
+            if target_iri not in self.targets.keys():
 
-        if target_iri not in targets.keys():
-
-            raise cherrypy.HTTPError(404) 
+                raise cherrypy.HTTPError(404) 
         
-        return targets[target_iri]
+            return self.targets[target_iri]
+
+        elif cherrypy.request.method == 'PUT':
+
+            if target_iri is None:
+
+                raise cherrypy.HTTPError(400)
+
+            if target_iri in self.targets.keys():
+
+                raise cherrypy.HTTPError(409) 
+
+            # TODO: Validate input
+
+            self.targets[target_iri] = cherrypy.request.json
+
+            cherrypy.response.status = 201
+            
+            return {'url': '/targets/{0}'.format(urllib.parse.quote_plus(cherrypy.request.json['id']))}
+
+        else:
+
+            raise cherrypy.HTTPError(501)
 
     
 def main():
@@ -114,7 +143,8 @@ def main():
                                "server.socket_port" : PORT,
                                "server.thread_pool" : THREADS,
                                "request.show_tracebacks": False,
-                               "request.show_mismatched_params": False
+                               "request.show_mismatched_params": False,
+                               "tools.trailing_slash.on": False
                                    }}
 
     # Conditionally turn off Autoreloader

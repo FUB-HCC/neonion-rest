@@ -47,6 +47,18 @@ You can then run the examples in this document using
 
 ### Create a Target
 
+    >>> target_iri = urllib.parse.quote_plus('target:1')
+    >>> url = 'http://{0}/targets/{1}'.format(API_HOST, target_iri)
+    >>> print(url)
+    http://127.0.0.1:8301/targets/target%3A1
+    >>> r = request('PUT', url, json =  {"id": "target:1"})
+    >>> print('{0} {1}'.format(r.status_code, r.reason))
+    201 Created
+    >>> str(r.content, encoding = 'utf-8') 
+    '{"url": "/targets/target%3A1"}'
+    >>>
+
+
 ### Read Targets
 
     >>> url = 'http://{0}/targets'.format(API_HOST)
@@ -56,7 +68,7 @@ You can then run the examples in this document using
     >>> print('{0} {1}'.format(r.status_code, r.reason))
     200 OK
     >>> str(r.content, encoding = 'utf-8')
-    '[{"id": "target:1"}, {"id": "target:2"}]'
+    '[{"id": "target:1"}]'
     >>>
 
     >>> target_iri = urllib.parse.quote_plus('target:1')
