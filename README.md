@@ -96,9 +96,11 @@ You can then run the examples in this document using
     404 Not Found
     >>>
 
+
 ### Update Targets
 
 Updating targets is currently not supported.
+
 
 ### Delete Targets
 
@@ -110,7 +112,7 @@ Deleting targets is currently not supported.
 ### Create an Annotation
 
     >>> target_iri = urllib.parse.quote_plus('target:1')
-    >>> annotation_iri = urllib.parse.quote_plus('annotation:1')
+    >>> annotation_iri = urllib.parse.quote_plus('annotation:1') 
     >>> url = 'http://{0}/targets/{1}/annotations/{2}'.format(API_HOST, target_iri, annotation_iri)
     >>> print(url)
     http://127.0.0.1:8301/targets/target%3A1/annotations/annotation%3A1
@@ -126,12 +128,95 @@ Deleting targets is currently not supported.
     409 Conflict
     >>>
 
+    >>> target_iri = urllib.parse.quote_plus('target:DOES NOT EXIST')
+    >>> annotation_iri = urllib.parse.quote_plus('annotation:2') 
+    >>> url = 'http://{0}/targets/{1}/annotations/{2}'.format(API_HOST, target_iri, annotation_iri)
+    >>> print(url)
+    http://127.0.0.1:8301/targets/target%3ADOES+NOT+EXIST/annotations/annotation%3A2
+    >>> r = request('PUT', url, json =  {"id": "annotation:1"})
+    >>> print('{0} {1}'.format(r.status_code, r.reason))
+    404 Not Found
+    >>>
+
 
 ### Read Annotations
+
+    >>> target_iri = urllib.parse.quote_plus('target:1')
+    >>> url = 'http://{0}/targets/{1}/annotations'.format(API_HOST, target_iri)
+    >>> print(url)
+    http://127.0.0.1:8301/targets/target%3A1/annotations
+    >>> r = request('GET', url)
+    >>> print('{0} {1}'.format(r.status_code, r.reason))
+    200 OK
+    >>> str(r.content, encoding = 'utf-8')
+    '[{"id": "annotation:1"}]'
+    >>>
+
+    >>> target_iri = urllib.parse.quote_plus('target:1') 
+    >>> annotation_iri = urllib.parse.quote_plus('annotation:1') 
+    >>> url = 'http://{0}/targets/{1}/annotations/{2}'.format(API_HOST, target_iri, annotation_iri)
+    >>> print(url)
+    http://127.0.0.1:8301/targets/target%3A1/annotations/annotation%3A1
+    >>> r = request('GET', url)
+    >>> print('{0} {1}'.format(r.status_code, r.reason))
+    200 OK
+    >>> str(r.content, encoding = 'utf-8') 
+    '{"id": "annotation:1"}'
+    >>>
+
+    >>> target_iri = urllib.parse.quote_plus('target:1') 
+    >>> annotation_iri = urllib.parse.quote_plus('annotation:DOES NOT EXIST')
+    >>> url = 'http://{0}/targets/{1}/annotations/{2}'.format(API_HOST, target_iri, annotation_iri)
+    >>> print(url)
+    http://127.0.0.1:8301/targets/target%3A1/annotations/annotation%3ADOES+NOT+EXIST
+    >>> r = request('GET', url)
+    >>> print('{0} {1}'.format(r.status_code, r.reason))
+    404 Not Found
+    >>>
+
+    >>> target_iri = urllib.parse.quote_plus('target:DOES NOT EXIST') 
+    >>> annotation_iri = urllib.parse.quote_plus('annotation:2') 
+    >>> url = 'http://{0}/targets/{1}/annotations/{2}'.format(API_HOST, target_iri, annotation_iri)
+    >>> print(url)
+    http://127.0.0.1:8301/targets/target%3ADOES+NOT+EXIST/annotations/annotation%3A2
+    >>> r = request('GET', url)
+    >>> print('{0} {1}'.format(r.status_code, r.reason))
+    404 Not Found
+    >>>
+
+    >>> target_iri = urllib.parse.quote_plus('target:2')
+    >>> url = 'http://{0}/targets/{1}'.format(API_HOST, target_iri)
+    >>> r = request('PUT', url, json =  {"id": "target:2"})
+    >>> print('{0} {1}'.format(r.status_code, r.reason))
+    201 Created
+    >>>
+
+    >>> target_iri = urllib.parse.quote_plus('target:2')
+    >>> url = 'http://{0}/targets/{1}/annotations'.format(API_HOST, target_iri)
+    >>> print(url)
+    http://127.0.0.1:8301/targets/target%3A2/annotations
+    >>> r = request('GET', url)
+    >>> print('{0} {1}'.format(r.status_code, r.reason))
+    200 OK
+    >>> str(r.content, encoding = 'utf-8')
+    '[]'
+    >>>
+
+    >>> target_iri = urllib.parse.quote_plus('target:2') 
+    >>> annotation_iri = urllib.parse.quote_plus('annotation:1') 
+    >>> url = 'http://{0}/targets/{1}/annotations/{2}'.format(API_HOST, target_iri, annotation_iri)
+    >>> print(url)
+    http://127.0.0.1:8301/targets/target%3A2/annotations/annotation%3A1
+    >>> r = request('GET', url)
+    >>> print('{0} {1}'.format(r.status_code, r.reason))
+    404 Not Found
+    >>>
+
 
 ### Update Annotations
 
 Updating annotations is currently not supported.
+
 
 ### Delete Annotations
 

@@ -38,7 +38,11 @@ class WebApp:
         #
         self.exposed = True
 
-        self.targets = Targets()
+        self.targets_dict = OrderedDict()
+        self.annotations_dict = OrderedDict()
+        self.mapping_dict = {}
+
+        self.targets = Targets(self.targets_dict, self.annotations_dict, self.mapping_dict)
         
         return
 
@@ -81,12 +85,15 @@ class Targets:
     """Target handler.
     """
 
-    def __init__(self):
+    def __init__(self, targets_dict, annotations_dict, mapping_dict):
         """Initialise.
         """
 
-        self.targets = OrderedDict()
-        self.annotations = Annotations()
+        self.targets_dict = targets_dict
+        self.annotations_dict = annotations_dict
+        self.mapping_dict = mapping_dict
+
+        self.annotations = Annotations(self.targets_dict, self.annotations_dict, self.mapping_dict)
 
         return
 
@@ -97,17 +104,21 @@ class Targets:
         """Handle given target.
         """
 
+        if target_iri is not None:
+
+            target_iri = urllib.parse.unquote_plus(target_iri)
+
         if cherrypy.request.method == 'GET':
 
             if target_iri is None:
 
-                return list(self.targets.values())
+                return list(self.targets_dict.values())
 
-            if target_iri not in self.targets.keys():
+            if target_iri not in self.targets_dict.keys():
 
                 raise cherrypy.HTTPError(404) 
         
-            return self.targets[target_iri]
+            return self.targets_dict[target_iri]
 
         elif cherrypy.request.method == 'PUT':
 
@@ -115,13 +126,15 @@ class Targets:
 
                 raise cherrypy.HTTPError(400)
 
-            if target_iri in self.targets.keys():
+            if target_iri in self.targets_dict.keys():
 
                 raise cherrypy.HTTPError(409) 
 
             # TODO: Validate input
 
-            self.targets[target_iri] = cherrypy.request.json
+            self.targets_dict[target_iri] = cherrypy.request.json
+
+            self.mapping_dict[target_iri] = []
 
             cherrypy.response.status = 201
             
@@ -137,11 +150,13 @@ class Annotations:
     """Annotation handler.
     """
 
-    def __init__(self):
+    def __init__(self, targets_dict, annotations_dict, mapping_dict):
         """Initialise.
         """
 
-        self.annotations = OrderedDict()
+        self.targets_dict = targets_dict
+        self.annotations_dict = annotations_dict
+        self.mapping_dict = mapping_dict
 
         return
 
@@ -149,20 +164,40 @@ class Annotations:
     @cherrypy.tools.json_out()
     @cherrypy.tools.json_in()
     def index(self, target_iri = None, annotation_iri = None):
-        """Handle given target.
+        """Handle given annotation.
         """
 
+        if target_iri is not None:
+
+            target_iri = urllib.parse.unquote_plus(target_iri)
+
+        if annotation_iri is not None:
+
+            annotation_iri = urllib.parse.unquote_plus(annotation_iri)
+
+        if target_iri not in self.targets_dict.keys():
+
+            raise cherrypy.HTTPError(404) 
+        
         if cherrypy.request.method == 'GET':
+
+            if target_iri not in self.mapping_dict.keys():
+
+                raise cherrypy.HTTPError(404)
 
             if annotation_iri is None:
 
-                return list(self.annotations.values())
+                return [self.annotations_dict[iri] for iri in self.mapping_dict[target_iri]]
+                
+            if annotation_iri not in self.annotations_dict.keys():
 
-            if annotation_iri not in self.annotations.keys():
+                raise cherrypy.HTTPError(404)
 
-                raise cherrypy.HTTPError(404) 
+            if annotation_iri not in self.mapping_dict[target_iri]:
+
+                raise cherrypy.HTTPError(404)
         
-            return self.annotations[annotation_iri]
+            return self.annotations_dict[annotation_iri]
 
         elif cherrypy.request.method == 'PUT':
 
@@ -170,13 +205,15 @@ class Annotations:
 
                 raise cherrypy.HTTPError(400)
 
-            if annotation_iri in self.annotations.keys():
+            if annotation_iri in self.annotations_dict.keys():
 
                 raise cherrypy.HTTPError(409) 
 
             # TODO: Validate input
 
-            self.annotations[annotation_iri] = cherrypy.request.json
+            self.annotations_dict[annotation_iri] = cherrypy.request.json
+
+            self.mapping_dict[target_iri].append(annotation_iri)
 
             cherrypy.response.status = 201
             
