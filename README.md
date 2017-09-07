@@ -47,6 +47,16 @@ You can then run the examples in this document using
 
 ### Create a Target
 
+URI: `/targets/TARGET_IRI`
+
+Method: `PUT`
+
+Body: A JSON represenation of the target.
+
+Returns: A JSON object denoting the url of the newly created target on the server.
+
+Return codes: `201` on success, `409` on conflict.
+
     >>> target_iri = urllib.parse.quote_plus('target:1')
     >>> url = 'http://{0}/targets/{1}'.format(API_HOST, target_iri)
     >>> print(url)
@@ -66,6 +76,16 @@ You can then run the examples in this document using
 
 ### Read Targets
 
+URI: `/targets`
+
+Method: `GET`
+
+Body: Empty.
+
+Returns: A list oft JSON target representations.
+
+Return codes: `200`
+
     >>> url = 'http://{0}/targets'.format(API_HOST)
     >>> print(url)
     http://127.0.0.1:8301/targets
@@ -75,6 +95,16 @@ You can then run the examples in this document using
     >>> str(r.content, encoding = 'utf-8')
     '[{"id": "target:1"}]'
     >>>
+
+URI: `/targets/TARGET_IRI`
+
+Method: `GET`
+
+Body: Empty.
+
+Returns: A JSON representation of the target.
+
+Return codes: `200` on success, `404` if the target is not found.
 
     >>> target_iri = urllib.parse.quote_plus('target:1')
     >>> url = 'http://{0}/targets/{1}'.format(API_HOST, target_iri)
@@ -111,6 +141,16 @@ Deleting targets is currently not supported.
 
 ### Create an Annotation
 
+URI: `/targets/TARGET_IRI/annotations/ANNOTATION_IRI`
+
+Method: `PUT`
+
+Body: A JSON represenation of the annotation.
+
+Returns: A JSON object denoting the url of the newly created annotation on the server.
+
+Return codes: `201` on success, `409` on conflict, `404` if the target to annotate is not found.
+
     >>> target_iri = urllib.parse.quote_plus('target:1')
     >>> annotation_iri = urllib.parse.quote_plus('annotation:1') 
     >>> url = 'http://{0}/targets/{1}/annotations/{2}'.format(API_HOST, target_iri, annotation_iri)
@@ -141,6 +181,16 @@ Deleting targets is currently not supported.
 
 ### Read Annotations
 
+URI: `/targets/TARGET_IRI/annotations`
+
+Method: `GET`
+
+Body: Empty.
+
+Returns: A list oft JSON annotation representations.
+
+Return codes: `200`
+
     >>> target_iri = urllib.parse.quote_plus('target:1')
     >>> url = 'http://{0}/targets/{1}/annotations'.format(API_HOST, target_iri)
     >>> print(url)
@@ -151,6 +201,16 @@ Deleting targets is currently not supported.
     >>> str(r.content, encoding = 'utf-8')
     '[{"id": "annotation:1"}]'
     >>>
+
+URI: `/targets/TARGET_IRI/annotations/ANNOTATION_IRI`
+
+Method: `GET`
+
+Body: Empty.
+
+Returns: A JSON representation of the annotation.
+
+Return codes: `200` on success, `404` if the annotation or the target is not found.
 
     >>> target_iri = urllib.parse.quote_plus('target:1') 
     >>> annotation_iri = urllib.parse.quote_plus('annotation:1') 
@@ -184,6 +244,8 @@ Deleting targets is currently not supported.
     404 Not Found
     >>>
 
+The list of annotations of a target may be empty.
+
     >>> target_iri = urllib.parse.quote_plus('target:2')
     >>> url = 'http://{0}/targets/{1}'.format(API_HOST, target_iri)
     >>> r = request('PUT', url, json =  {"id": "target:2"})
@@ -201,6 +263,8 @@ Deleting targets is currently not supported.
     >>> str(r.content, encoding = 'utf-8')
     '[]'
     >>>
+
+Double-checking that no existing annotations are found on newly created targets:
 
     >>> target_iri = urllib.parse.quote_plus('target:2') 
     >>> annotation_iri = urllib.parse.quote_plus('annotation:1') 
