@@ -126,11 +126,17 @@ class Targets:
 
                 raise cherrypy.HTTPError(400)
 
+            if not 'id' in cherrypy.request.json.keys():
+
+                raise cherrypy.HTTPError(400)
+
+            if not len(cherrypy.request.json['id']):
+
+                raise cherrypy.HTTPError(400)
+
             if target_iri in self.targets_dict.keys():
 
                 raise cherrypy.HTTPError(409) 
-
-            # TODO: Validate input
 
             self.targets_dict[target_iri] = cherrypy.request.json
 
@@ -203,13 +209,65 @@ class Annotations:
 
             if annotation_iri is None:
 
+                print("1")
+
+                raise cherrypy.HTTPError(400)
+
+            print(list(cherrypy.request.json.keys()))
+
+            if not '@context' in cherrypy.request.json.keys():
+
+                print("2")
+
+                raise cherrypy.HTTPError(400)
+
+            if not cherrypy.request.json['@context'] == 'http://www.w3.org/ns/anno.jsonld':
+
+                print("3")
+
+                raise cherrypy.HTTPError(400)
+
+            if not 'type' in cherrypy.request.json.keys():
+
+                print("4")
+
+                raise cherrypy.HTTPError(400)
+
+            if not cherrypy.request.json['type'] == 'Annotation':
+
+                print("5")
+
+                raise cherrypy.HTTPError(400)
+
+            if not 'id' in cherrypy.request.json.keys():
+
+                print("6")
+
+                raise cherrypy.HTTPError(400)
+
+            if not len(cherrypy.request.json['id']):
+
+                print("7")
+
+                raise cherrypy.HTTPError(400)
+
+            if not 'target' in cherrypy.request.json.keys():
+
+                print("8")
+
+                raise cherrypy.HTTPError(400)
+
+            # TODO: Check for local target?
+            #
+            if not len(cherrypy.request.json['target']):
+
+                print("9")
+
                 raise cherrypy.HTTPError(400)
 
             if annotation_iri in self.annotations_dict.keys():
 
                 raise cherrypy.HTTPError(409) 
-
-            # TODO: Validate input
 
             self.annotations_dict[annotation_iri] = cherrypy.request.json
 

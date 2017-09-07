@@ -51,16 +51,23 @@ You can then run the examples in this document using
 
 **Method:** `PUT`
 
-**Body:** A JSON represenation of the target.
+**Body:** A JSON represenation of the target. The target must at least have an `id` key mapping to an IRI string.
 
 **Returns:** A JSON object denoting the url of the newly created target on the server.
 
-**Return codes:** `201` on success, `409` on conflict.
+**Return codes:** `201` on success, `409` on conflict, `400` on malformed target JSON.
 
     >>> target_iri = urllib.parse.quote_plus('target:1')
     >>> url = 'http://{0}/targets/{1}'.format(API_HOST, target_iri)
     >>> print(url)
     http://127.0.0.1:8301/targets/target%3A1
+    >>>
+
+    >>> r = request('PUT', url, json =  {})
+    >>> print('{0} {1}'.format(r.status_code, r.reason))
+    400 Bad Request
+    >>>
+
     >>> r = request('PUT', url, json =  {"id": "target:1"})
     >>> print('{0} {1}'.format(r.status_code, r.reason))
     201 Created
@@ -146,7 +153,13 @@ Deleting targets is currently not supported.
 
 **Method:** `PUT`
 
-**Body:** A JSON represenation of the annotation.
+**Body:** A JSON represenation of the annotation. As defined per the
+[Web Annotation Data Model](https://www.w3.org/TR/annotation-model/#annotations),
+an annotation must at least have the keys `@context`, `id`, `type` and `target`.
+
+`@context` must be `http://www.w3.org/ns/anno.jsonld`,
+`type` must be `Annotation`,
+and `id` and `target` must be IRIs.
 
 **Returns:** A JSON object denoting the url of the newly created annotation on the server.
 
@@ -157,14 +170,19 @@ Deleting targets is currently not supported.
     >>> url = 'http://{0}/targets/{1}/annotations/{2}'.format(API_HOST, target_iri, annotation_iri)
     >>> print(url)
     http://127.0.0.1:8301/targets/target%3A1/annotations/annotation%3A1
-    >>> r = request('PUT', url, json =  {"id": "annotation:1"})
+
+    >>> r = request('PUT', url, json =  {})
+    >>> print('{0} {1}'.format(r.status_code, r.reason))
+    400 Bad Request
+
+    >>> r = request('PUT', url, json = {"id": "annotation:1", "@context": "http://www.w3.org/ns/anno.jsonld", "type": "Annotation", "target": "target:1"})
     >>> print('{0} {1}'.format(r.status_code, r.reason))
     201 Created
     >>> str(r.content, encoding = 'utf-8') 
     '{"url": "/targets/target%3A1/annotations/annotation%3A1"}'
     >>>
 
-    >>> r = request('PUT', url, json =  {"id": "annotation:1"})
+    >>> r = request('PUT', url, json = {"id": "annotation:1", "@context": "http://www.w3.org/ns/anno.jsonld", "type": "Annotation", "target": "target:1"})
     >>> print('{0} {1}'.format(r.status_code, r.reason))
     409 Conflict
     >>>
@@ -200,7 +218,7 @@ Deleting targets is currently not supported.
     >>> print('{0} {1}'.format(r.status_code, r.reason))
     200 OK
     >>> str(r.content, encoding = 'utf-8')
-    '[{"id": "annotation:1"}]'
+    '[{"id": "annotation:1", "@context": "http://www.w3.org/ns/anno.jsonld", "type": "Annotation", "target": "target:1"}]'
     >>>
 
 **URI:** `/targets/TARGET_IRI/annotations/ANNOTATION_IRI`, where TARGET_IRI and ANNOTATION_IRI are
@@ -223,7 +241,7 @@ Deleting targets is currently not supported.
     >>> print('{0} {1}'.format(r.status_code, r.reason))
     200 OK
     >>> str(r.content, encoding = 'utf-8') 
-    '{"id": "annotation:1"}'
+    '{"id": "annotation:1", "@context": "http://www.w3.org/ns/anno.jsonld", "type": "Annotation", "target": "target:1"}'
     >>>
 
     >>> target_iri = urllib.parse.quote_plus('target:1') 
