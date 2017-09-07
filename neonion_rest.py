@@ -86,6 +86,7 @@ class Targets:
         """
 
         self.targets = OrderedDict()
+        self.annotations = Annotations()
 
         return
 
@@ -130,7 +131,64 @@ class Targets:
 
             raise cherrypy.HTTPError(501)
 
+
+@cherrypy.popargs('annotation_iri')
+class Annotations:
+    """Annotation handler.
+    """
+
+    def __init__(self):
+        """Initialise.
+        """
+
+        self.annotations = OrderedDict()
+
+        return
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    @cherrypy.tools.json_in()
+    def index(self, target_iri = None, annotation_iri = None):
+        """Handle given target.
+        """
+
+        if cherrypy.request.method == 'GET':
+
+            if annotation_iri is None:
+
+                return list(self.annotations.values())
+
+            if annotation_iri not in self.annotations.keys():
+
+                raise cherrypy.HTTPError(404) 
+        
+            return self.annotations[annotation_iri]
+
+        elif cherrypy.request.method == 'PUT':
+
+            if annotation_iri is None:
+
+                raise cherrypy.HTTPError(400)
+
+            if annotation_iri in self.annotations.keys():
+
+                raise cherrypy.HTTPError(409) 
+
+            # TODO: Validate input
+
+            self.annotations[annotation_iri] = cherrypy.request.json
+
+            cherrypy.response.status = 201
+            
+            return {'url': '/targets/{0}/annotations/{1}'.format(urllib.parse.quote_plus(target_iri),
+                                                                 urllib.parse.quote_plus(cherrypy.request.json['id']))}
+
+        else:
+
+            raise cherrypy.HTTPError(501)
+
     
+
 def main():
     """Main function, for IDE convenience.
     """

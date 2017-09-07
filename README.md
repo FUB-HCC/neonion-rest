@@ -109,6 +109,24 @@ Deleting targets is currently not supported.
 
 ### Create an Annotation
 
+    >>> target_iri = urllib.parse.quote_plus('target:1')
+    >>> annotation_iri = urllib.parse.quote_plus('annotation:1')
+    >>> url = 'http://{0}/targets/{1}/annotations/{2}'.format(API_HOST, target_iri, annotation_iri)
+    >>> print(url)
+    http://127.0.0.1:8301/targets/target%3A1/annotations/annotation%3A1
+    >>> r = request('PUT', url, json =  {"id": "annotation:1"})
+    >>> print('{0} {1}'.format(r.status_code, r.reason))
+    201 Created
+    >>> str(r.content, encoding = 'utf-8') 
+    '{"url": "/targets/target%3A1/annotations/annotation%3A1"}'
+    >>>
+
+    >>> r = request('PUT', url, json =  {"id": "annotation:1"})
+    >>> print('{0} {1}'.format(r.status_code, r.reason))
+    409 Conflict
+    >>>
+
+
 ### Read Annotations
 
 ### Update Annotations
