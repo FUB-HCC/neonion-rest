@@ -47,7 +47,7 @@ You can then run the examples in this document using
 
 ### Create a Target
 
-*URI:* `/targets/TARGET_IRI`
+*URI:* `/targets/TARGET_IRI`, where TARGET_IRI is a [percent-encoded URI](https://tools.ietf.org/html/rfc3986#section-2.1), with spaces replaced by plus signs.
 
 *Method:* `PUT`
 
@@ -96,7 +96,7 @@ Method: `GET`
     '[{"id": "target:1"}]'
     >>>
 
-URI: `/targets/TARGET_IRI`
+URI: `/targets/TARGET_IRI`, where TARGET_IRI is a [percent-encoded URI](https://tools.ietf.org/html/rfc3986#section-2.1), with spaces replaced by plus signs.
 
 Method: `GET`
 
@@ -141,7 +141,8 @@ Deleting targets is currently not supported.
 
 ### Create an Annotation
 
-URI: `/targets/TARGET_IRI/annotations/ANNOTATION_IRI`
+URI: `/targets/TARGET_IRI/annotations/ANNOTATION_IRI`, where TARGET_IRI and ANNOTATION_IRI are
+[percent-encoded URIs](https://tools.ietf.org/html/rfc3986#section-2.1), with spaces replaced by plus signs.
 
 Method: `PUT`
 
@@ -181,7 +182,7 @@ Method: `PUT`
 
 ### Read Annotations
 
-URI: `/targets/TARGET_IRI/annotations`
+URI: `/targets/TARGET_IRI/annotations`, where TARGET_IRI is a [percent-encoded URI](https://tools.ietf.org/html/rfc3986#section-2.1), with spaces replaced by plus signs.
 
 Method: `GET`
 
@@ -202,7 +203,8 @@ Method: `GET`
     '[{"id": "annotation:1"}]'
     >>>
 
-URI: `/targets/TARGET_IRI/annotations/ANNOTATION_IRI`
+URI: `/targets/TARGET_IRI/annotations/ANNOTATION_IRI`, where TARGET_IRI and ANNOTATION_IRI are
+[percent-encoded URIs](https://tools.ietf.org/html/rfc3986#section-2.1), with spaces replaced by plus signs.
 
 Method: `GET`
 
