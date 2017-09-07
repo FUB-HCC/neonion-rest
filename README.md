@@ -47,15 +47,15 @@ You can then run the examples in this document using
 
 ### Create a Target
 
-URI: `/targets/TARGET_IRI`
+*URI:* `/targets/TARGET_IRI`
 
-Method: `PUT`
+*Method:* `PUT`
 
-Body: A JSON represenation of the target.
+*Body:* A JSON represenation of the target.
 
-Returns: A JSON object denoting the url of the newly created target on the server.
+*Returns:* A JSON object denoting the url of the newly created target on the server.
 
-Return codes: `201` on success, `409` on conflict.
+*Return codes:* `201` on success, `409` on conflict.
 
     >>> target_iri = urllib.parse.quote_plus('target:1')
     >>> url = 'http://{0}/targets/{1}'.format(API_HOST, target_iri)
@@ -80,11 +80,11 @@ URI: `/targets`
 
 Method: `GET`
 
-Body: Empty.
+*Body:* Empty.
 
-Returns: A list oft JSON target representations.
+*Returns:* A list oft JSON target representations.
 
-Return codes: `200`
+*Return codes:* `200`
 
     >>> url = 'http://{0}/targets'.format(API_HOST)
     >>> print(url)
@@ -100,11 +100,11 @@ URI: `/targets/TARGET_IRI`
 
 Method: `GET`
 
-Body: Empty.
+*Body:* Empty.
 
-Returns: A JSON representation of the target.
+*Returns:* A JSON representation of the target.
 
-Return codes: `200` on success, `404` if the target is not found.
+*Return codes:* `200` on success, `404` if the target is not found.
 
     >>> target_iri = urllib.parse.quote_plus('target:1')
     >>> url = 'http://{0}/targets/{1}'.format(API_HOST, target_iri)
@@ -145,11 +145,11 @@ URI: `/targets/TARGET_IRI/annotations/ANNOTATION_IRI`
 
 Method: `PUT`
 
-Body: A JSON represenation of the annotation.
+*Body:* A JSON represenation of the annotation.
 
-Returns: A JSON object denoting the url of the newly created annotation on the server.
+*Returns:* A JSON object denoting the url of the newly created annotation on the server.
 
-Return codes: `201` on success, `409` on conflict, `404` if the target to annotate is not found.
+*Return codes:* `201` on success, `409` on conflict, `404` if the target to annotate is not found.
 
     >>> target_iri = urllib.parse.quote_plus('target:1')
     >>> annotation_iri = urllib.parse.quote_plus('annotation:1') 
@@ -185,11 +185,11 @@ URI: `/targets/TARGET_IRI/annotations`
 
 Method: `GET`
 
-Body: Empty.
+*Body:* Empty.
 
-Returns: A list oft JSON annotation representations.
+*Returns:* A list oft JSON annotation representations.
 
-Return codes: `200`
+*Return codes:* `200`
 
     >>> target_iri = urllib.parse.quote_plus('target:1')
     >>> url = 'http://{0}/targets/{1}/annotations'.format(API_HOST, target_iri)
@@ -206,11 +206,11 @@ URI: `/targets/TARGET_IRI/annotations/ANNOTATION_IRI`
 
 Method: `GET`
 
-Body: Empty.
+*Body:* Empty.
 
-Returns: A JSON representation of the annotation.
+*Returns:* A JSON representation of the annotation.
 
-Return codes: `200` on success, `404` if the annotation or the target is not found.
+*Return codes:* `200` on success, `404` if the annotation or the target is not found.
 
     >>> target_iri = urllib.parse.quote_plus('target:1') 
     >>> annotation_iri = urllib.parse.quote_plus('annotation:1') 
