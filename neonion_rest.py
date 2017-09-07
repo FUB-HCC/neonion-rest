@@ -1,29 +1,14 @@
-"""DESCRIPTION OF neonion_rest
+"""neonion_rest
 
-   Copyright (c) 2017 Florian Berger <florian.berger@posteo.de>
+   Copyright (c) 2017 Florian Berger <flberger@florian-berger.de>
 """
-
-# This file is part of neonion_rest.
-#
-# neonion_rest is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# neonion_rest is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with neonion_rest.  If not, see <http://www.gnu.org/licenses/>.
 
 # Work started on 06. Sep 2017.
 
 import logging
 import cherrypy
 import threading
-from hashlib import sha256
+from collections import OrderedDict
 
 VERSION = "0.1.0"
 
@@ -34,34 +19,10 @@ STDERR_HANDLER = logging.StreamHandler()
 STDERR_HANDLER.setFormatter(STDERR_FORMATTER)
 LOGGER.addHandler(STDERR_HANDLER)
 
-PORT = 8399
+PORT = 8301
 THREADS = 4
 AUTORELOAD = False
 WRITE_LOCK = threading.Lock()
-
-
-
-def logged_in(f):
-    """A decorator to check for valid login before displaying a page.
-    """
-
-    def run_with_login_check(*args):
-
-        if not cherrypy.session.get("logged_in"):
-
-            return """<html>
-    <head>
-        <title>Login required</title>
-    </head>
-    <body>
-        <p>Please <a href="/login">log in</a> to access this address.</p>
-    </body>
-</html>
-"""
-
-        return f(*args)
-
-    return run_with_login_check
 
 class WebApp:
     """Web application main class, suitable as cherrypy root.
@@ -71,12 +32,12 @@ class WebApp:
         """Initialise WebApp.
         """
 
-        self.login_hashes = [sha256("admin".encode("utf8") + "admin".encode("utf8")).hexdigest()]
-
         # Make self.__call__ visible to cherrypy
         #
         self.exposed = True
 
+        self.targets = Targets()
+        
         return
 
     # Non-exposed method, acquiring a lock.
@@ -103,125 +64,44 @@ class WebApp:
 
         return """<html>
     <head>
-        <title>Hello World</title>
+        <title>neonion Annotations REST API</title>
     </head>
     <body>
-        <h1>Hello World</h1>
-        <p><a href="/subpage">Go to subpage</a></p>
-        <p><a href="/rss">View RSS</a></p>
-        <p><a href="/admin">Go to admin page</a></p>
-        <p><a href="/login">Log in</a></p>
-        <p><a href="/logout">Log out</a></p>
+        <h1>neonion Annotations REST API</h1>
+        <p>Please call the API endpoints using a JSON request body.</p>
+       <p>See <a href="https://github.com/FUB-HCC/neonion-rest">https://github.com/FUB-HCC/neonion-rest</a> for details.</p>
     </body>
 </html>
 """
 
-    def subpage(self):
+@cherrypy.popargs('target_iri')
+class Targets:
+    """Target handler.
+    """
 
-        return '<html><head><title>Hello World Subpage</title></head><body><h1>Hello World Subpage</h1><p><a href="/">Go to main page</a></p></body></html>'
-
-    subpage.exposed = True
-
-    # Example of a method with different Content-Type
-    #
-    @cherrypy.tools.response_headers(headers = [("Content-Type", "application/rss+xml")])
-    def rss(self):
-        """Return an RSS feed.
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    @cherrypy.tools.json_in()
+    def index(self, target_iri = None):
+        """Handle given target.
         """
 
-        rss = """<?xml version="1.0"?>
-<rss version="2.0">
+        targets = OrderedDict()
 
-   <channel>
+        targets['target:1'] = {"id": "target:1"}
+        targets['target:2'] = {"id": "target:2"}
 
-      <title>{0}</title>
-      <link>{1}</link>
-      <description>A website running on {0}.</description>
-      <generator>{0} v{2}</generator>
-        """.format("WebApp", "https://#", VERSION)
+        if target_iri is None:
 
-        for item in [{"title": "An Item",
-                      "uri": "http://#",
-                      "description": "This is an item.",
-                      "pubDate": "YYYY-MM-DD"}]:
+            return list(targets.values())
 
-            rss += """<item>
-         <title>{}</title>
-         <link>{}</link>
-         <description>{}</description>
-         <pubDate>{}</pubDate>
-      </item>""".format(item["title"],
-                        item["uri"],
-                        item["description"],
-                        item["pubDate"])
+        if target_iri not in targets.keys():
 
-        rss += "</channel></rss>"
+            raise cherrypy.HTTPError(404) 
+        
+        return targets[target_iri]
 
-        # bytes output is required by the response_headers decorator
-        #
-        return bytes(rss, "utf8")
-
-    rss.exposed = True
-
-    def login(self, user = None, password = None):
-        """If called without arguments, return a login form.
-           If called with arguments, try to log in.
-        """
-
-        if (user is not None and password is not None):
-
-            if sha256(user.encode("utf8") + password.encode("utf8")).hexdigest() in self.login_hashes:
-
-                cherrypy.session["logged_in"] = True
-
-                return "You are now logged in."
-
-            else:
-                return self.login()
-
-        else:
-            
-            return """<html>
-    <head>
-        <title>Login</title>
-    </head>
-    <body>
-        <form action="/login" method="POST">
-            <input type="text" name="user">
-            <input type="password" name="password">
-            <input type="submit">
-        </form>
-    </body>
-</html>
-"""
-
-    login.exposed = True
-
-    # Example of a page requiring login
-    #
-    @logged_in
-    def admin(self):
-
-        return "Admin access area."
-
-    admin.exposed = True
-
-    def logout(self):
-        """Expire the current Cherrypy session for this user.
-        """
-
-        if cherrypy.session.get("logged_in"):
-
-            cherrypy.lib.sessions.expire()
-
-            return "You are now logged out."
-
-        else:
-
-            return "You are not logged in."
-
-    logout.exposed = True
-
+    
 def main():
     """Main function, for IDE convenience.
     """
@@ -230,9 +110,12 @@ def main():
 
     config_dict = {"/" : {"tools.sessions.on" : True,
                           "tools.sessions.timeout" : 60},
-                   "global" : {"server.socket_host" : "127.0.0.1",
+                   "global" : {"server.socket_host" : "0.0.0.0",
                                "server.socket_port" : PORT,
-                               "server.thread_pool" : THREADS}}
+                               "server.thread_pool" : THREADS,
+                               "request.show_tracebacks": False,
+                               "request.show_mismatched_params": False
+                                   }}
 
     # Conditionally turn off Autoreloader
     #
