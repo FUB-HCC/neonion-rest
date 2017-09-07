@@ -58,6 +58,11 @@ You can then run the examples in this document using
     '{"url": "/targets/target%3A1"}'
     >>>
 
+    >>> r = request('PUT', url, json =  {"id": "target:1"})
+    >>> print('{0} {1}'.format(r.status_code, r.reason))
+    409 Conflict
+    >>>
+
 
 ### Read Targets
 
