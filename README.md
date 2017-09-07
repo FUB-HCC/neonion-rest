@@ -51,7 +51,7 @@ You can then run the examples in this document using
 
 **Method:** `PUT`
 
-**Body:** A JSON represenation of the target. The target must at least have an `id` key mapping to an IRI string.
+**Body:** A JSON represenation of the target. The target must at least have an `id` key mapping to an non-percent-encoded IRI string.
 
 **Returns:** A JSON object denoting the url of the newly created target on the server.
 
@@ -159,7 +159,7 @@ an annotation must at least have the keys `@context`, `id`, `type` and `target`.
 
 `@context` must be `http://www.w3.org/ns/anno.jsonld`,
 `type` must be `Annotation`,
-and `id` and `target` must be IRIs.
+and `id` and `target` must be non-percent-encoded IRIs.
 
 **Returns:** A JSON object denoting the url of the newly created annotation on the server.
 
