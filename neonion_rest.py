@@ -28,7 +28,6 @@ WRITE_LOCK = threading.Lock()
 
 def cors():
   if cherrypy.request.method == 'OPTIONS':
-    print("CORS PREFLIGHT! requested OPTIONS")
     # preflign request
     # see http://www.w3.org/TR/cors/#cross-origin-request-with-preflight-0
     cherrypy.response.headers['Access-Control-Allow-Methods'] = 'PUT'
@@ -37,7 +36,6 @@ def cors():
     # tell CherryPy no avoid normal handler
     return True
   else:
-    print("ENABLE CORS Access-Control-Allow-Origin")
     cherrypy.response.headers['Access-Control-Allow-Origin'] = '*'
 
 cherrypy.tools.cors = cherrypy._cptools.HandlerTool(cors)
