@@ -113,7 +113,6 @@ class Targets:
         return
 
     @cherrypy.expose
-    @cherrypy.config(**{'tools.cors.on': True})
     @cherrypy.tools.json_out()
     @cherrypy.tools.json_in()
     def index(self, target_iri = None):
