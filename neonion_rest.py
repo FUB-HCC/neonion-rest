@@ -26,6 +26,21 @@ THREADS = 4
 AUTORELOAD = False
 WRITE_LOCK = threading.Lock()
 
+def cors():
+  if cherrypy.request.method == 'OPTIONS':
+    # preflign request
+    # see http://www.w3.org/TR/cors/#cross-origin-request-with-preflight-0
+    cherrypy.response.headers['Access-Control-Allow-Methods'] = 'PUT'
+    cherrypy.response.headers['Access-Control-Allow-Headers'] = 'content-type'
+    cherrypy.response.headers['Access-Control-Allow-Origin']  = '*'
+    # tell CherryPy no avoid normal handler
+    return True
+  else:
+    cherrypy.response.headers['Access-Control-Allow-Origin'] = '*'
+
+cherrypy.tools.cors = cherrypy._cptools.HandlerTool(cors)
+
+
 class WebApp:
     """Web application main class, suitable as cherrypy root.
     """
@@ -43,7 +58,7 @@ class WebApp:
         self.mapping_dict = {}
 
         self.targets = Targets(self.targets_dict, self.annotations_dict, self.mapping_dict)
-        
+
         return
 
     # Non-exposed method, acquiring a lock.
@@ -116,8 +131,8 @@ class Targets:
 
             if target_iri not in self.targets_dict.keys():
 
-                raise cherrypy.HTTPError(404) 
-        
+                raise cherrypy.HTTPError(404)
+
             return self.targets_dict[target_iri]
 
         elif cherrypy.request.method == 'PUT':
@@ -136,14 +151,14 @@ class Targets:
 
             if target_iri in self.targets_dict.keys():
 
-                raise cherrypy.HTTPError(409) 
+                raise cherrypy.HTTPError(409)
 
             self.targets_dict[target_iri] = cherrypy.request.json
 
             self.mapping_dict[target_iri] = []
 
             cherrypy.response.status = 201
-            
+
             return {'url': '/targets/{0}'.format(urllib.parse.quote_plus(cherrypy.request.json['id']))}
 
         else:
@@ -183,8 +198,8 @@ class Annotations:
 
         if target_iri not in self.targets_dict.keys():
 
-            raise cherrypy.HTTPError(404) 
-        
+            raise cherrypy.HTTPError(404)
+
         if cherrypy.request.method == 'GET':
 
             if target_iri not in self.mapping_dict.keys():
@@ -194,7 +209,7 @@ class Annotations:
             if annotation_iri is None:
 
                 return [self.annotations_dict[iri] for iri in self.mapping_dict[target_iri]]
-                
+
             if annotation_iri not in self.annotations_dict.keys():
 
                 raise cherrypy.HTTPError(404)
@@ -202,7 +217,7 @@ class Annotations:
             if annotation_iri not in self.mapping_dict[target_iri]:
 
                 raise cherrypy.HTTPError(404)
-        
+
             return self.annotations_dict[annotation_iri]
 
         elif cherrypy.request.method == 'PUT':
@@ -267,14 +282,14 @@ class Annotations:
 
             if annotation_iri in self.annotations_dict.keys():
 
-                raise cherrypy.HTTPError(409) 
+                raise cherrypy.HTTPError(409)
 
             self.annotations_dict[annotation_iri] = cherrypy.request.json
 
             self.mapping_dict[target_iri].append(annotation_iri)
 
             cherrypy.response.status = 201
-            
+
             return {'url': '/targets/{0}/annotations/{1}'.format(urllib.parse.quote_plus(target_iri),
                                                                  urllib.parse.quote_plus(cherrypy.request.json['id']))}
 
@@ -282,7 +297,7 @@ class Annotations:
 
             raise cherrypy.HTTPError(501)
 
-    
+
 
 def main():
     """Main function, for IDE convenience.
@@ -291,7 +306,8 @@ def main():
     root = WebApp()
 
     config_dict = {"/" : {"tools.sessions.on" : True,
-                          "tools.sessions.timeout" : 60},
+                          "tools.sessions.timeout" : 60,
+                          "tools.cors.on": True},
                    "global" : {"server.socket_host" : "0.0.0.0",
                                "server.socket_port" : PORT,
                                "server.thread_pool" : THREADS,
